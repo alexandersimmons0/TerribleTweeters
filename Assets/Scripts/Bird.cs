@@ -8,28 +8,36 @@ public class Bird : MonoBehaviour
     private Rigidbody2D rigid;
     private Vector2 startPosition;
     public float speed;
+    public int birdCounter;
     public float maxDragDis;
     public float timeDelay;
     public bool isDragging;
+    public bool birdThrown;
+    private AudioSource soundEffect;
+    private bool hit;
     void Awake(){
         rend = GetComponent<SpriteRenderer>();
-        rigid = GetComponent<Rigidbody2D>();        
+        rigid = GetComponent<Rigidbody2D>();    
+        soundEffect = GetComponent<AudioSource>();    
     }
     void Start(){
+        hit = false;
         rigid.isKinematic = true;
         startPosition = rigid.position;
     }
     void OnMouseDown(){
-        rend.color = Color.red;
+        rend.color = Color.blue;
         isDragging = true;
     }
     void OnMouseUp(){
+        soundEffect.Play();
         isDragging = false;
         Vector2 currentPos = rigid.position;
         Vector2 dir = startPosition - currentPos;
         dir.Normalize();
         rigid.isKinematic = false;
         rigid.AddForce(dir * speed);
+        birdThrown = true;
         rend.color = Color.white;
     }
     void OnMouseDrag(){
@@ -47,6 +55,7 @@ public class Bird : MonoBehaviour
         rigid.position = desiredPosition;
     }
     void OnCollisionEnter2D(Collision2D collision){
+        hit = true;
         StartCoroutine(ResetAfterDelay());
     }
     IEnumerator ResetAfterDelay(){
@@ -54,6 +63,10 @@ public class Bird : MonoBehaviour
         rigid.isKinematic = true;
         transform.position = startPosition;
         rigid.velocity = Vector2.zero;
+        if(hit){
+            birdCounter--;
+            hit = false;
+        }
     }
     void Update(){
 

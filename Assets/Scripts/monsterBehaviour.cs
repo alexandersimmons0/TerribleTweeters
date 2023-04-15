@@ -7,10 +7,23 @@ public class monsterBehaviour : MonoBehaviour
     public Sprite deadSprite;
     public ParticleSystem deathParticle;
     public float delay;
+    public AudioClip[] clipArray;
     private bool hasDied;
+    private AudioSource audios;
     private SpriteRenderer monsterSprite;
-    void Start(){
+    IEnumerator Start(){
         monsterSprite = GetComponent<SpriteRenderer>();
+        audios = GetComponent<AudioSource>();
+        while(!hasDied){
+            float delay = UnityEngine.Random.Range(5,30);
+            yield return new WaitForSeconds(delay);
+            if(!hasDied){
+                audios.PlayOneShot(clipArray[0]);
+            }
+        }
+    }
+    void OnMouseDown(){
+        audios.PlayOneShot(clipArray[1]);
     }
     void OnCollisionEnter2D(Collision2D collision){
         if(ShouldDieFromCollision(collision)){
@@ -20,6 +33,7 @@ public class monsterBehaviour : MonoBehaviour
     IEnumerator Die(){
         monsterSprite.sprite = deadSprite;
         deathParticle.Play();
+        audios.PlayOneShot(clipArray[2]);
         hasDied = true;
         yield return new WaitForSeconds(delay);
         gameObject.SetActive(false);
